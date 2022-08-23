@@ -1,4 +1,3 @@
-
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <time.h>
@@ -6,27 +5,27 @@
 #include "DHT.h"
 #define DHTTYPE DHT11 // DHT 11
 
-#define dht_dpin 4
+#define dht_dpin 2
 DHT dht(dht_dpin, DHTTYPE);
 
-#include "secrets.h"
+///#include "secrets.h"
 
 //Conexión a Wifi
 //Nombre de la red Wifi
-const char ssid[] = "Gecko";
+const char ssid[] = "Ghost";
 //Contraseña de la red Wifi
-const char pass[] = "112505NaC";
+const char pass[] = "112505nac";
 
 //Usuario uniandes sin @uniandes.edu.co
-#define HOSTNAME "lm.silvaa1"
+#define HOSTNAME "w.beltran"
 
 //Conexión a Mosquitto
 const char MQTT_HOST[] = "iotlab.virtual.uniandes.edu.co";
 const int MQTT_PORT = 8082;
 //Usuario uniandes sin @uniandes.edu.co
-const char MQTT_USER[] = "lm.silvaa1";
+const char MQTT_USER[] = "w.beltran";
 //Contraseña de MQTT que recibió por correo
-const char MQTT_PASS[] = "202115895";
+const char MQTT_PASS[] = "202116348";
 const char MQTT_SUB_TOPIC[] = HOSTNAME "/";
 //Tópico al que se enviarán los datos de humedad
 const char MQTT_PUB_TOPIC1[] = "humedad/villavicencio/" HOSTNAME;
@@ -176,7 +175,7 @@ void loop()
   //Lee los datos del sensor
   float h = dht.readHumidity();
   float t = dht.readTemperature();
-  float l = analogRead(A0);
+  float l = map(analogRead(A0), 1023 ,0, 0 ,100);
   
   //Transforma la información a la notación JSON para poder enviar los datos 
   //El mensaje que se envía es de la forma {"value": x}, donde x es el valor de temperatura o humedad
