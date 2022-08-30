@@ -6,4 +6,4 @@
 
 ### Retos
 1. [Reto capa de dispositivos](https://github.com/Uniandes-MISO/IoT/tree/main/1.%20Capa%20de%20dispositivos/NodeMCU_Luminosidad)
-2. [Reto capa de comunicación: red]()
+2. [Reto capa de comunicación: red](https://github.com/Uniandes-MISO/IoT/tree/main/2.%20Reto%20capa%20de%20comunicaci%C3%B3n/Red)
