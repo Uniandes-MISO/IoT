@@ -430,7 +430,6 @@ class RemaView(TemplateView):
         elif measurements.count() > 0:
             selectedMeasure = measurements[0]
 
-        locations = Location.objects.all()
         try:
             start = datetime.fromtimestamp(
                 float(self.request.GET.get('from', None))/1000)
@@ -441,6 +440,12 @@ class RemaView(TemplateView):
                 float(self.request.GET.get('to', None))/1000)
         except:
             end = None
+
+        try:
+            country_d = int(self.request.GET.get('country', None))
+        except:
+            country_d = None
+            
         if start == None and end == None:
             start = datetime.now()
             start = start - \
@@ -454,6 +459,11 @@ class RemaView(TemplateView):
             start = datetime.fromtimestamp(0)
 
         data = []
+        if country_d == None :
+            locations = Location.objects.all()
+        else:
+            locations = Location.objects.filter(country_id=country_d)
+            
 
         for location in locations:
             stations = Station.objects.filter(location=location)
@@ -551,8 +561,17 @@ def get_map_json(request, **kwargs):
     elif start == None:
         start = datetime.fromtimestamp(0)
 
+    try:
+        country_d = int(request.GET.get('country', None))
+    except:
+        country_d = None
+        
     data = []
-
+    if country_d == None :
+        locations = Location.objects.all()
+    else:
+        locations = Location.objects.filter(country_id=country_d)
+        
     for location in locations:
         stations = Station.objects.filter(location=location)
         locationData = Data.objects.filter(
