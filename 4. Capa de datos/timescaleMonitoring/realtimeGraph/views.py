@@ -504,7 +504,7 @@ def get_map_json(request, **kwargs):
     elif measurements.count() > 0:
         selectedMeasure = measurements[0]
 
-    locations = Location.objects.all()
+    #locations = Location.objects.all()
     try:
         start = datetime.fromtimestamp(
             float(request.GET.get("from", None)) / 1000
@@ -526,8 +526,17 @@ def get_map_json(request, **kwargs):
     elif start == None:
         start = datetime.fromtimestamp(0)
 
+    try:
+        country_d = int(request.GET.get('country', None))
+    except:
+        country_d = None
+        
     data = []
-
+    if country_d == None :
+        locations = Location.objects.all()
+    else:
+        locations = Location.objects.filter(country_id=country_d)
+        
     start_ts = int(start.timestamp() * 1000000)
     end_ts = int(end.timestamp() * 1000000)
 
@@ -616,7 +625,7 @@ class RemaView(TemplateView):
         elif measurements.count() > 0:
             selectedMeasure = measurements[0]
 
-        locations = Location.objects.all()
+        #locations = Location.objects.all()
         try:
             start = datetime.fromtimestamp(
                 float(self.request.GET.get("from", None)) / 1000
@@ -638,8 +647,17 @@ class RemaView(TemplateView):
         elif start == None:
             start = datetime.fromtimestamp(0)
 
+        try:
+            country_d = int(self.request.GET.get('country', None))
+        except:
+            country_d = None
+            
         data = []
-
+        if country_d == None :
+            locations = Location.objects.all()
+        else:
+            locations = Location.objects.filter(country_id=country_d)
+            
         start_ts = int(start.timestamp() * 1000000)
         end_ts = int(end.timestamp() * 1000000)
 
