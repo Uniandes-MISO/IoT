@@ -34,7 +34,7 @@
           </elementProp>
           <elementProp name="consulta_url" elementType="Argument">
             <stringProp name="Argument.name">consulta_url</stringProp>
-            <stringProp name="Argument.value">/rema/Temperatura?from=1625115600000&amp;to=1627793999999</stringProp>
+            <stringProp name="Argument.value">/rema/Temperatura?from=1625115600000&amp;to=1627793999999&amp;country=2</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
