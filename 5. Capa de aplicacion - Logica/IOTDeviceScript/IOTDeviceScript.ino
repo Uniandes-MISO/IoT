@@ -496,7 +496,12 @@ void loop() {
     }
     displayHeader();   
     }
-  else {
+  else {  
+    delay(500);
+    lcd.noBacklight();
+    delay(250);
+    lcd.backlight();
+  
     displayMessage(message);
     clearLCD = true;    
   }
