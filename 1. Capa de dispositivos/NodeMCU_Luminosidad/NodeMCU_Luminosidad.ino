@@ -83,6 +83,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
 void setup()
 {
   Serial.begin(115200);
+  dht.begin();
   Serial.println();
   Serial.print("Attempting to connect to SSID: ");
   Serial.print(ssid);
