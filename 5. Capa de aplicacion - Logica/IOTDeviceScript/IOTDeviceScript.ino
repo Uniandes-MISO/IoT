@@ -497,9 +497,9 @@ void loop() {
     displayHeader();   
     }
   else {  
-    delay(500);
+    delay(200);
     lcd.noBacklight();
-    delay(250);
+    delay(50);
     lcd.backlight();
   
     displayMessage(message);

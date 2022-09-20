@@ -1,6 +1,6 @@
 from argparse import ArgumentError
 import ssl
-from django.db.models import Avg
+from django.db.models import Avg, Min, Max
 from datetime import timedelta, datetime
 from receiver.models import Data, Measurement
 import paho.mqtt.client as mqtt
@@ -44,12 +44,23 @@ def analyze_data():
         state = item['station__location__state__name']
         city = item['station__location__city__name']
         user = item['station__user__username']
+        
+        msg_value = ""
 
-        if item["check_value"] > max_value or item["check_value"] < min_value:
+        if item["check_value"] > max_value :
             alert = True
-
+            msg_value = ">{}".format(max_value)
+            
+        
+        if item["check_value"] < min_value:
+            alert = True
+            msg_value = "<{}".format(min_value)
+            
+        print("msg_value: {}".format(msg_value))
+        
         if alert:
-            message = "ALERT {} {} {}".format(variable, min_value, max_value)
+            str_var = str(variable)
+            message = "ALERT {} {}".format(str_var[0:4], msg_value)
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
             client.publish(topic, message)
@@ -57,6 +68,64 @@ def analyze_data():
 
     print(len(aggregation), "dispositivos revisados")
     print(alerts, "alertas enviadas")
+    
+    
+    print("")
+    print("________________________________________________________________________________")
+    
+    print("Calculando nuevas alertas...")
+    data_new = Data.objects.filter(
+        base_time__gte=datetime.now() - timedelta(hours=1))
+    aggregation_new = data_new.annotate(check_value_min=Min('min_value'), check_value_max=Max('max_value') ) \
+        .select_related('station', 'measurement') \
+        .select_related('station__user', 'station__location') \
+        .select_related('station__location__city', 'station__location__state',
+                        'station__location__country') \
+        .values('check_value_min', 'check_value_max', 'station__user__username',
+                'measurement__name',
+                'measurement__unit',
+                'measurement__max_value',
+                'measurement__min_value',
+                'station__location__city__name',
+                'station__location__state__name',
+                'station__location__country__name')
+    
+    alerts = 0
+    for item in aggregation_new:
+        alert = False
+
+        variable = item["measurement__unit"]
+        max_value = item["measurement__max_value"] or 0
+        min_value = item["measurement__min_value"] or 0        
+        check_value_min = item["check_value_min"]
+        check_value_max = item["check_value_max"]
+        
+        country = item['station__location__country__name']
+        state = item['station__location__state__name']
+        city = item['station__location__city__name']
+        user = item['station__user__username']
+
+        diff_dev = check_value_max - check_value_min
+        diff_mes = max_value - min_value
+        
+        print("{} measurement {} min_value {} max_value {} diff {} ".format(city, variable, min_value,max_value,diff_mes))
+        print("{} device min_value {} max_value {} diff {}".format(city, check_value_min,check_value_max,diff_dev))
+                        
+        if diff_dev > diff_mes:
+            alert = True
+
+        if alert:
+            message = "*ALERT* {} {} ".format(variable, diff_dev)
+            
+            topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+            print("Sending alert to {} {}".format(topic, variable))
+            client.publish(topic, message)
+            alerts += 1
+
+    print(len(aggregation_new), "dispositivos revisados")
+    print(alerts, "Nuevas alertas enviadas")
+    print("________________________________________________________________________________")
+    print("")
 
 
 def on_connect(client, userdata, flags, rc):
@@ -105,7 +174,7 @@ def start_cron():
     Inicia el cron que se encarga de ejecutar la función analyze_data cada 5 minutos.
     '''
     print("Iniciando cron...")
-    schedule.every(1).minutes.do(analyze_data)
+    schedule.every(0.5).minutes.do(analyze_data)
     print("Servicio de control iniciado")
     while 1:
         schedule.run_pending()

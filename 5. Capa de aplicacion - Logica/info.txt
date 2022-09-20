@@ -1,0 +1,22 @@
+
+cd IOTMonitoringServer
+
+EC2 "IOT Receiver App"
+python3 manage.py start_mqtt &
+
+EC2 "IOT Alert App"
+python3 manage.py start_control &
+
+ EC2 "IOT Viewer App"
+ sudo python3 manage.py runserver 0.0.0.0:80 &
+
+
+sudo systemctl restart mosquitto.service
+sudo systemctl status mosquitto.service
+
+admin:admin
+admin2:admin2
+user1:123456
+pe.perez:abc123
+ironman:jarvis123
+jfkennedy:apolo11
