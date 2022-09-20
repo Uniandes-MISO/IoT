@@ -24,7 +24,8 @@
 #define MEASURE_INTERVAL 2
 // Duración aproximada en la pantalla de las alertas que se reciban
 #define ALERT_DURATION 60
- 
+
+#define LED D8 
 
 // Declaraciones
 
@@ -45,23 +46,23 @@ PubSubClient client(net);
 
 // WiFi
 // Nombre de la red WiFi
-const char ssid[] =  "Ghost"; // TODO cambiar por el nombre de la red WiFi
+const char ssid[] =  "DANTE 2.4G"; // TODO cambiar por el nombre de la red WiFi
 // Contraseña de la red WiFi
-const char pass[] = "112505nac"; // TODO cambiar por la contraseña de la red WiFi
+const char pass[] = "D4nte123"; // TODO cambiar por la contraseña de la red WiFi
 
 //Conexión a Mosquitto
-#define USER "user1" // TODO Reemplace UsuarioMQTT por un usuario (no administrador) que haya creado en la configuración del bróker de MQTT.
+#define USER "ironman" // TODO Reemplace UsuarioMQTT por un usuario (no administrador) que haya creado en la configuración del bróker de MQTT.
 const char MQTT_HOST[] = "54.224.254.137"; // TODO Reemplace ip.maquina.mqtt por la IP del bróker MQTT que usted desplegó. Ej: 192.168.0.1
 const int MQTT_PORT = 8082;
 const char MQTT_USER[] = USER;
 //Contraseña de MQTT
-const char MQTT_PASS[] = "123456"; // TODO Reemplace ContrasenaMQTT por la contraseña correpondiente al usuario especificado.
+const char MQTT_PASS[] = "jarvis123"; // TODO Reemplace ContrasenaMQTT por la contraseña correpondiente al usuario especificado.
 
 //Tópico al que se recibirán los datos
 // El tópico de publicación debe tener estructura: <país>/<estado>/<ciudad>/<usuario>/out
-const char MQTT_TOPIC_PUB[] = "colombia/meta/villavicencio/" USER "/out"; //TODO Reemplace el valor por el tópico de publicación que le corresponde.
+const char MQTT_TOPIC_PUB[] = "colombia/cundinamarca/bogota/" USER "/out"; //TODO Reemplace el valor por el tópico de publicación que le corresponde.
 // El tópico de suscripción debe tener estructura: <país>/<estado>/<ciudad>/<usuario>/in
-const char MQTT_TOPIC_SUB[] = "colombia/meta/villavicencio/" USER "/in"; //TODO Reemplace el valor por el tópico de suscripción que le corresponde.
+const char MQTT_TOPIC_SUB[] = "colombia/cundinamarca/bogota/" USER "/in"; //TODO Reemplace el valor por el tópico de suscripción que le corresponde.
 
 // Declaración de variables globales
 
@@ -181,7 +182,7 @@ void startDisplay() {
     for(;;);
   }
   display.setTextColor(SSD1306_WHITE);*/
-  lcd.init();
+  lcd.begin();
   lcd.backlight();
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -249,7 +250,7 @@ void displayMessage(String message) {
   //lcd.println(message);
   
   //--display.setTextSize(2);
-  
+  digitalWrite(LED, LOW);
   if (message.equals("OK")) {
     //--display.println("  " + message); 
     //lcd.println(" " + message);
@@ -258,7 +259,7 @@ void displayMessage(String message) {
     //--display.println("");
     //--display.println("");
     //--display.println(message); 
-    
+    digitalWrite(LED, HIGH); 
     lcd.setCursor(0, 0);
     lcd.println(message);
   }
@@ -471,7 +472,8 @@ void setup() {
   startWiFi();
 
   dht.begin();
-
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW); //LED comienza apagado
   setTime();
 
   configureMQTT(); 
@@ -492,6 +494,7 @@ void loop() {
   if (message.equals("OK")) {
      if(clearLCD==true){
       lcd.clear(); 
+      digitalWrite(LED, LOW);
       clearLCD = false;
     }
     displayHeader();   
